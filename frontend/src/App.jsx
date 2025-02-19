@@ -4,6 +4,7 @@ import './App.css'
 import StockChart from '../components/StockChart.jsx'
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import dayjs from "dayjs";
 
 function App() {
   const [invest, setInvest] = useState(100);
@@ -134,6 +135,7 @@ function App() {
   return (
     <>
       <h1>Stock Maximum ROI Calculator</h1>
+      <p>Enter a stock symbol, a starting investment, and a time frame to find the best singular trade to maximize your return on investment.</p>
 
 
       <div>
@@ -179,19 +181,17 @@ function App() {
 
       {error && <p style={{ color: "red", fontWeight: "bold" }}>{error}</p>}
 
-      {symbol && (
+      {stock && (
         <div>
-          <h2>{symbol}</h2>
+          <h2>Stock Symbol: {symbol}</h2>
         </div>
       )}
 
       {bestTrade ? (
         <div>
-          <h2>Best Trade Result</h2>
-          <p>📅 Buy on: {bestTrade.buyDate} at ${bestTrade.buyPricef}</p>
-          <p>📅 Sell on: {bestTrade.sellDate} at ${bestTrade.sellPricef}</p>
-          <p>💰 Max Profit: ${bestTrade.profit} for a {(100*bestTrade.sellPricef/bestTrade.buyPricef).toFixed(2)}% ROI</p>
-          <p>💰 You would have: ${((bestTrade.sellPricef/bestTrade.buyPricef) * invest).toFixed(2)}</p>
+          <p>🔴If you had bought ${invest} worth of {symbol} stock on {dayjs(bestTrade.buyDate).format("MMMM D, YYYY")} at ${bestTrade.buyPricef} per stock</p>
+          <p>🟢 And sold on {dayjs(bestTrade.sellDate).format("MMMM D, YYYY")} at ${bestTrade.sellPricef} per stock</p>
+          <p>💰 You would have: ${((bestTrade.sellPricef/bestTrade.buyPricef) * invest).toFixed(2)} for a {(100*bestTrade.sellPricef/bestTrade.buyPricef).toFixed(2)}% ROI</p>
         </div>
       ) : (
         <p>No profitable trade found.</p>
@@ -199,7 +199,7 @@ function App() {
       
       <div>
        
-        {stock ? <StockChart stockData={stock} bestTrade={bestTrade} /> : <p>Loading stock data...</p>}
+        {stock ? <StockChart stockData={stock} bestTrade={bestTrade} /> : <p>Waiting for fetched stock data</p>}
       </div>
 
     </>
