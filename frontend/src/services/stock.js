@@ -3,8 +3,6 @@ import axios from 'axios'
 const apiKey = import.meta.env.VITE_apiKey;
 console.log(apiKey)
 
-
-
 const getPrices = async (symbol) => {
   if (!symbol) {
     console.error('Stock symbol is null.');
