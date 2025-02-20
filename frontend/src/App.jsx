@@ -1,194 +1,124 @@
 import { useState } from 'react'
-import stockServices from './services/stock.js'
-import './App.css'
-import StockChart from '../components/StockChart.jsx'
+import { useDispatch, useSelector } from "react-redux";
+import { motion } from "framer-motion";
+import { fetchStockData, setSymbol, setInvest, setStartDate, setEndDate, selectStock } from "./reducers/stockReducer.js";
+import StockChart from "../components/StockChart";
 import DatePicker from "react-datepicker";
+import './App.css'
 import "react-datepicker/dist/react-datepicker.css";
+import { Form, Button } from "react-bootstrap";
 import dayjs from "dayjs";
-import { Form, Button } from 'react-bootstrap'
-
-
 
 function App() {
-  const [invest, setInvest] = useState(100);
-  const [stock, setStock] = useState(null)
-  const [symbol, setSymbol] = useState('IBM')
-  const [bestTrade, setBestTrade] = useState(null)
-  const [startDate, setStartDate] = useState(new Date("2024-01-01"));
-  const [endDate, setEndDate] = useState(new Date());
-  const [error, setError] = useState(null);
+  const dispatch = useDispatch();
+  const { symbol, invest, stockData, bestTrade, startDate, endDate, error } = useSelector(selectStock);
+  const [localSymbol, setLocalSymbol] = useState(symbol);
+  const [localInvest, setLocalInvest] = useState(invest);
+  const [localStartDate, setLocalStartDate] = useState(startDate);
+  const [localEndDate, setLocalEndDate] = useState(endDate);
+  const [animate, setAnimate] = useState(false);
 
-  const CACHE_EXPIRY = 60 * 60 * 1000;
+  const handleSubmit = (event) => {
+    event.preventDefault();
 
-  const handleChange = (event) => {
-    setInvest(parseFloat(event.target.value));
+    setAnimate(false);
+
+    setTimeout(() => {
+      setAnimate(true);
+    }, 500);
+
+    dispatch(setSymbol(localSymbol));
+    dispatch(setInvest(localInvest));
+    dispatch(setStartDate(localStartDate));
+    dispatch(setEndDate(localEndDate));
+    dispatch(fetchStockData({ symbol: localSymbol, startDate: localStartDate, endDate: localEndDate }));
+
   };
-  const handleSymbolChange = (event) => {
-    setSymbol(event.target.value);
-  };
-
-  const getCachedData = (symbol) => {
-    const cachedSymbol = JSON.parse(localStorage.getItem("stockSymbol"));
-    const cachedData = JSON.parse(localStorage.getItem("stockData"));
-    const cacheTimestamp = localStorage.getItem("stockDataTimestamp");
-    if (cachedData && cachedSymbol === symbol && Date.now() - cacheTimestamp < CACHE_EXPIRY) {
-      console.log("Using cached stock data");
-      return cachedData;
-    }
-    return null;
-  };
-
-  const setCachedData = (symbol, stockData) => {
-    localStorage.setItem("stockSymbol", JSON.stringify(symbol));
-    localStorage.setItem("stockData", JSON.stringify(stockData));
-    localStorage.setItem("stockDataTimestamp", Date.now().toString());
-  };
-
-  const fetchStockDataAndSymbol = async () => {
-    try {
-      event.preventDefault();
-      let stockData = getCachedData(symbol);
-
-      if (!stockData) {
-        console.log(`Fetching new stock data for ${symbol}`);
-        stockData = await stockServices.getPrices(symbol);
-        setCachedData(symbol, stockData);
-      }
-
-      const filteredData = stockData.filter(data => {
-        const date = new Date(data.date);
-        return date >= startDate && date <= endDate;
-      });
-
-      if (filteredData.length === 0) {
-        setError("No stock data available for the selected period.");
-        setStock(null);
-      }
-
-      else {
-        setError(null);
-        setStock(filteredData)
-        const trade = findBestTrade(filteredData)
-        setBestTrade(trade)
-      }
-
-    } catch (error) {
-      console.error('Error fetching stock data:', error)
-      setError("Failed to fetch stock data. Please try again later.");
-    }
-  }
-
-  const findBestTrade = (stockData) => {
-    if (!stockData || stockData.length === 0) return null
-
-    const reversedData = [...stockData].reverse();
-
-    let minPrice = Number.MAX_VALUE
-    let maxProfit = 0
-    let possBuyDate = null
-    let sellDate = null
-    let buyDate = null
-    let sellPrice = null
-    let buyPrice = null
-
-
-    reversedData.forEach((day, index) => {
-      const price = parseFloat(day.open)
-
-      if (price < minPrice) {
-        minPrice = price
-        possBuyDate = day.date
-      }
-
-      const profit = price - minPrice
-
-      if (profit > maxProfit) {
-        maxProfit = profit
-        sellDate = day.date
-        buyDate = possBuyDate
-        sellPrice = price
-        buyPrice = minPrice
-      }
-    })
-
-    return maxProfit > 0 ? { buyDate, sellDate, profit: maxProfit.toFixed(2), sellPricef: sellPrice.toFixed(2), buyPricef: buyPrice.toFixed(2) } : null
-  }
 
   return (
     <>
       <h1>Stock Maximum ROI Calculator</h1>
-      <p>Enter a stock symbol, a starting investment, and a time frame to find the best singular trade to maximize your return on investment.</p>
-      <p>Stock data is fetched from Alpha Vantage API and only takes the daily opening prices.</p>
-      <Form onSubmit={fetchStockDataAndSymbol}>
-
-        <Form.Group className='form'>
+      <p>Enter a stock symbol, a starting investment, and a time frame
+        to find the best singular trade to maximize your return on investment.</p>
+      <p>Assumes you start out with no stock and can only make one purchase and one sale</p>
+      <p>Stock data is from Alpha Vantage API and only fetched the daily opening prices.</p>
+      <Form onSubmit={handleSubmit}>
+        <Form.Group className="form">
           <Form.Label>Stock Symbol:</Form.Label>
           <Form.Control
             type="text"
-            value={symbol}
-            onChange={handleSymbolChange}
+            value={localSymbol}
+            onChange={(e) => setLocalSymbol(e.target.value)}
             placeholder="Enter stock symbol (e.g. AAPL, MSFT)"
           />
         </Form.Group>
 
-        <Form.Group className='form'>
+        <Form.Group className="form">
           <Form.Label>Starting Investment:</Form.Label>
           <Form.Control
             type="number"
-            value={invest}
-            onChange={handleChange}
+            value={localInvest}
+            onChange={(e) => setLocalInvest(parseFloat(e.target.value))}
             min="0"
             step="0.01"
           />
+
         </Form.Group>
 
         <Form.Group>
           <Form.Label>Start Date:</Form.Label>
-          <DatePicker selected={startDate} onChange={date => setStartDate(date)}
-            className="form-control" />
+          <DatePicker selected={localStartDate} onChange={(date) => setLocalStartDate(date)} className="form-control" />
         </Form.Group>
-
 
         <Form.Group>
           <Form.Label>End Date:</Form.Label>
-          <DatePicker selected={endDate} onChange={date => setEndDate(date)}
-            className="form-control" />
+          <DatePicker selected={localEndDate} onChange={(date) => setLocalEndDate(date)} className="form-control" />
         </Form.Group>
-
 
         <Button variant="primary" type="submit">
           Fetch Data
         </Button>
-
-
       </Form>
-
 
       {error && <p style={{ color: "red", fontWeight: "bold" }}>{error}</p>}
 
-      {stock && (
-        <div>
+      {symbol && (
+        <motion.div
+          initial={{ opacity: 0, y: 50 }}
+          animate={animate ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.5, ease: "easeOut" }}
+        >
           <h2>Stock Symbol: {symbol}</h2>
-        </div>
+        </motion.div>
       )}
 
       {bestTrade ? (
-        <div>
+        <motion.div
+          initial={{ opacity: 0, y: 50 }}
+          animate={animate ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.5, ease: "easeOut" }}
+        >
           <p>🔴If you had bought ${invest} worth of {symbol} stock on {dayjs(bestTrade.buyDate).format("MMMM D, YYYY")} at ${bestTrade.buyPricef} per stock</p>
           <p>🟢 And sold on {dayjs(bestTrade.sellDate).format("MMMM D, YYYY")} at ${bestTrade.sellPricef} per stock</p>
           <p>💰 You would have: ${((bestTrade.sellPricef / bestTrade.buyPricef) * invest).toFixed(2)} for a {(100 * bestTrade.sellPricef / bestTrade.buyPricef).toFixed(2)}% ROI</p>
-        </div>
+        </motion.div>
       ) : (
         <p>No profitable trade found.</p>
       )}
 
       <div>
 
-        {stock ? <StockChart stockData={stock} bestTrade={bestTrade} /> : <p>Waiting for fetched stock data</p>}
+        {stockData ?
+          <motion.div
+            initial={{ opacity: 0, y: 50 }}
+            animate={animate ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.5, ease: "easeOut" }}
+          >
+            <StockChart stockData={stockData} bestTrade={bestTrade} />
+          </motion.div> : <p>Waiting for fetched stock data</p>}
       </div>
-
     </>
-  )
+  );
 }
 
-export default App
+export default App;

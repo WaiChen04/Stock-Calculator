@@ -11,12 +11,9 @@ const getPrices = async (symbol) => {
   try {
 
     const url = `https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=${symbol}&outputsize=full&apikey=${apiKey}`
-    const response = await axios.get(url) 
+    const response = await axios.get(url)
     console.log('You are making an API call to:', url)
     const timeSeries = response.data['Time Series (Daily)']
-    
- 
-   
 
     if (!timeSeries) {
       throw new Error('Time Series data not found')
@@ -27,7 +24,7 @@ const getPrices = async (symbol) => {
       date,
       open: data['1. open']
     }))
-    
+
     return prices
   } catch (error) {
     console.error('Error fetching stock prices:', error)
@@ -36,5 +33,4 @@ const getPrices = async (symbol) => {
 }
 
 
-  export default { getPrices }
-  
+export default { getPrices }
