@@ -37,7 +37,7 @@ function App() {
 
   return (
     <>
-      <h1>Stock Maximum ROI Calculator</h1>
+      <h1>Maximum ROI Calculator for Stocks</h1>
       <p>Enter a stock symbol, a starting investment, and a time frame
         to find the best singular trade to maximize your return on investment.</p>
       <p>Assumes you start out with no stock and can only make one purchase and one sale</p>
