@@ -5,3 +5,4 @@ Then, it will run an O(n) algorithm similar to this [LeetCode Question](https://
 (Assuming you want to make one sell and one buy trade with no starting stock).
 <br />
 Made with React, Node.js, Express.js, Javascript, HTML, CSS, Redux Toolkit, Rechart, Bootstrap, and Framer Motion.
+https://stock-maximum-roi-calculator.fly.dev/
