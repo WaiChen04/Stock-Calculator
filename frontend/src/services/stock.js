@@ -1,7 +1,6 @@
 import axios from 'axios'
 
 const apiKey = import.meta.env.VITE_apiKey;
-console.log(apiKey)
 
 const getPrices = async (symbol) => {
   if (!symbol) {
@@ -10,7 +9,7 @@ const getPrices = async (symbol) => {
   }
   try {
 
-    const url = `https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=${symbol}&outputsize=full&apikey=${apiKey}`
+    const url = `https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=IBM&apikey=${apiKey}`
     const response = await axios.get(url)
     console.log('You are making an API call to:', url)
     const timeSeries = response.data['Time Series (Daily)']

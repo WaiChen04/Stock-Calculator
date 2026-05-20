@@ -3,6 +3,10 @@ import stockServices from "../services/stock";
 
 const CACHE_EXPIRY = 60 * 60 * 1000;
 
+const ninetyDaysAgo = new Date();
+ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90);
+const defaultStartDate = ninetyDaysAgo;
+
 export const fetchStockData = createAsyncThunk(
     "stock/fetchStockData",
     async ({ symbol, startDate, endDate }) => {
@@ -33,7 +37,7 @@ const stockSlice = createSlice({
         invest: 100,
         stockData: null,
         bestTrade: null,
-        startDate: new Date("2024-01-01"),
+        startDate: defaultStartDate,
         endDate: new Date(),
         error: null,
     },
