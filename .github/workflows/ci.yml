@@ -26,7 +26,7 @@ jobs:
         working-directory: frontend
 
       - name: Run unit tests
-        run: npm test
+        run: npm run test
         working-directory: frontend
 
       - name: Install Playwright browsers
