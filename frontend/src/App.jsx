@@ -41,7 +41,7 @@ function App() {
       <p>Enter a stock symbol, a starting investment, and a time frame
         to find the best singular trade to maximize your return on investment.</p>
       <p>Assumes you start out with no stock and can only make one purchase and one sale</p>
-      <p>Stock data is from Alpha Vantage API and only fetched the daily opening prices.</p>
+      <p>Stock data is from Alpha Vantage API and only fetched the daily opening prices in the last 6 months.</p>
       <Form onSubmit={handleSubmit}>
         <Form.Group className="form">
           <Form.Label>Stock Symbol:</Form.Label>
@@ -67,12 +67,24 @@ function App() {
 
         <Form.Group>
           <Form.Label>Start Date:</Form.Label>
-          <DatePicker selected={localStartDate} onChange={(date) => setLocalStartDate(date)} className="form-control" />
+          <DatePicker 
+            selected={localStartDate} 
+            onChange={(date) => setLocalStartDate(date)} 
+            className="form-control"
+            minDate={dayjs().subtract(6, 'months').toDate()}
+            maxDate={new Date()}
+          />
         </Form.Group>
 
         <Form.Group>
           <Form.Label>End Date:</Form.Label>
-          <DatePicker selected={localEndDate} onChange={(date) => setLocalEndDate(date)} className="form-control" />
+          <DatePicker 
+            selected={localEndDate} 
+            onChange={(date) => setLocalEndDate(date)} 
+            className="form-control"
+            minDate={dayjs().subtract(6, 'months').toDate()}
+            maxDate={new Date()}
+          />
         </Form.Group>
 
         <Button variant="primary" type="submit">

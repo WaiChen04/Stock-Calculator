@@ -92,7 +92,7 @@ export const { setSymbol, setInvest, setStartDate, setEndDate } = stockSlice.act
 export default stockSlice.reducer;
 
 const findBestTrade = (stockData) => {
-    if (!stockData || stockData.length === 0) return null;
+    if (!stockData || stockData.length === 1 || stockData.length === 0) return null;
 
     const reversedData = [...stockData].reverse();
     let minPrice = Number.MAX_VALUE;

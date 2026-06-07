@@ -20,40 +20,43 @@ const CustomTooltip = ({ active, payload }) => {
 
 const StockChart = ({ stockData, bestTrade }) => {
 
+
+  if (!stockData || stockData.length === 0) {
+    return <div style={{ width: '100%', height: '500px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>No stock data available.</div>;
+  }
+
   const reversedData = [...stockData].reverse();
 
   const maxOpenPrice = Math.max(...reversedData.map(d => parseFloat(d.open)));
   const minOpenPrice = Math.min(...reversedData.map(d => parseFloat(d.open)));
 
   return (
-    <div style={{ width: '100%', height: '500px' }}> 
-      <ResponsiveContainer width="90%" height="100%"> 
-      <LineChart data={reversedData} margin={{ top: 20, right: 30, left: 20, bottom: 10 }}>
+    <div style={{ width: '100%', height: '500px' }}>
+      <LineChart width={900} height={450} data={reversedData} margin={{ top: 20, right: 30, left: 20, bottom: 10 }}>
         <CartesianGrid strokeDasharray="3 3" />
-        <XAxis dataKey="date"  />
-        <YAxis   domain={[Math.max((minOpenPrice- 10),0), maxOpenPrice + 10]} />
+        <XAxis dataKey="date" />
+        <YAxis domain={[Math.max((minOpenPrice - 10), 0), maxOpenPrice + 10]} />
         <Tooltip content={<CustomTooltip />} />
         <Line type="monotone" dataKey="open" stroke="#A020F0" strokeWidth={2} dot={false} />
 
         {bestTrade?.buyDate && (
-          <ReferenceDot 
-            x={bestTrade.buyDate} 
-            y={reversedData.find(d => d.date === bestTrade.buyDate)?.open} 
-            fill="red" 
-            r={6} 
+          <ReferenceDot
+            x={bestTrade.buyDate}
+            y={reversedData.find(d => d.date === bestTrade.buyDate)?.open}
+            fill="red"
+            r={6}
           />
         )}
 
         {bestTrade?.sellDate && (
-          <ReferenceDot 
-            x={bestTrade.sellDate} 
-            y={reversedData.find(d => d.date === bestTrade.sellDate)?.open} 
-            fill="green" 
-            r={6} 
+          <ReferenceDot
+            x={bestTrade.sellDate}
+            y={reversedData.find(d => d.date === bestTrade.sellDate)?.open}
+            fill="green"
+            r={6}
           />
         )}
       </LineChart>
-    </ResponsiveContainer>
     </div>
   );
 };

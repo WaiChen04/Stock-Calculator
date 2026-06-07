@@ -9,7 +9,7 @@ const getPrices = async (symbol) => {
   }
   try {
 
-    const url = `https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=IBM&apikey=${apiKey}`
+    const url = `https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=${symbol}&apikey=${apiKey}`
     const response = await axios.get(url)
     console.log('You are making an API call to:', url)
     const timeSeries = response.data['Time Series (Daily)']
